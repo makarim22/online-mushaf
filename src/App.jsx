@@ -23,6 +23,7 @@ export default function QuranPage() {
     const [arabicFont, setArabicFont] = useState('font-amiri')
     const [showTransliteration, setShowTransliteration] = useState(true)
     const [showTranslation, setShowTranslation] = useState(true)
+    const [showGuide, setShowGuide] = useState(() => localStorage.getItem('quran_guide_seen') !== 'true')
     
     // Tafsir States
     const [tafsirData, setTafsirData] = useState({})
@@ -205,10 +206,10 @@ export default function QuranPage() {
                 const response = await fetch("https://equran.id/api/v2/surat")
                 const data = await response.json()
                 setSuratList(data.data || [])
-                const anNaba = data.data?.find(s => s.namaLatin === "An-Naba")
-                if (anNaba) {
-                    setSelectedSurat(anNaba)
-                    fetchAyat(anNaba.nomor)
+                const alFatihah = data.data?.find(s => s.nomor === 1)
+                if (alFatihah) {
+                    setSelectedSurat(alFatihah)
+                    fetchAyat(alFatihah.nomor)
                 }
             } catch (error) {
                 console.error("Error fetching surat:", error)
@@ -532,6 +533,63 @@ export default function QuranPage() {
                                 className={`px-4 py-1.5 rounded-lg text-xs font-serif font-bold transition-all disabled:opacity-40 ${darkMode ? 'bg-gray-800 text-amber-300 hover:bg-gray-700' : 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200'}`}
                             >
                                 Ayat Berikutnya →
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Guide Modal */}
+            {showGuide && (
+                <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+                    <div className={`${darkMode ? 'bg-gray-900 border-gray-700' : 'bg-white border-amber-200'} border-2 rounded-xl shadow-2xl w-full max-w-lg overflow-hidden relative`}>
+                        <div className={`p-6 sm:p-8 text-center border-b ${darkMode ? 'border-gray-800' : 'border-amber-100'}`}>
+                            <div className="mx-auto bg-amber-600 text-white w-16 h-16 rounded-full flex items-center justify-center mb-4 shadow-lg">
+                                <BookOpen size={32} />
+                            </div>
+                            <h2 className={`font-serif font-bold text-2xl mb-2 ${darkMode ? 'text-amber-300' : 'text-amber-800'}`}>Selamat Datang di Hifdzi</h2>
+                            <p className={`font-serif text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                                Berikut panduan singkat fitur bacaan Anda:
+                            </p>
+                        </div>
+                        <div className={`p-6 sm:p-8 space-y-5 ${darkMode ? 'bg-gray-800/50' : 'bg-amber-50/50'}`}>
+                            <div className="flex items-start gap-4">
+                                <div className={`p-2 rounded-lg ${darkMode ? 'bg-gray-800 text-amber-400' : 'bg-amber-100 text-amber-700'} mt-1`}>
+                                    <Sparkles size={18} />
+                                </div>
+                                <div>
+                                    <h4 className={`font-serif font-bold text-sm ${darkMode ? 'text-amber-200' : 'text-amber-900'}`}>Pencarian Cerdas</h4>
+                                    <p className={`font-serif text-xs leading-relaxed mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Gunakan ikon <Sparkles size={12} className="inline text-amber-500"/> di atas untuk mencari ayat Al-Qur'an menggunakan AI Vector Search berdasarkan topik yang ingin dicari.</p>
+                                </div>
+                            </div>
+                            <div className="flex items-start gap-4">
+                                <div className={`p-2 rounded-lg ${darkMode ? 'bg-gray-800 text-amber-400' : 'bg-amber-100 text-amber-700'} mt-1`}>
+                                    <ChevronLeft size={18} />
+                                </div>
+                                <div>
+                                    <h4 className={`font-serif font-bold text-sm ${darkMode ? 'text-amber-200' : 'text-amber-900'}`}>Panel Navigasi Kanan</h4>
+                                    <p className={`font-serif text-xs leading-relaxed mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Tekan <ChevronLeft size={12} className="inline text-amber-500"/> di kanan atas untuk memunculkan navigasi Surah, memilih reciter (Qari), dan memutar audio surah penuh.</p>
+                                </div>
+                            </div>
+                            <div className="flex items-start gap-4">
+                                <div className={`p-2 rounded-lg ${darkMode ? 'bg-gray-800 text-amber-400' : 'bg-amber-100 text-amber-700'} mt-1`}>
+                                    <Settings size={18} />
+                                </div>
+                                <div>
+                                    <h4 className={`font-serif font-bold text-sm ${darkMode ? 'text-amber-200' : 'text-amber-900'}`}>Menu Pengaturan</h4>
+                                    <p className={`font-serif text-xs leading-relaxed mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Tekan ikon <Settings size={12} className="inline text-amber-500"/> untuk menyesuaikan ukuran teks, jenis Font Arab, serta menampilkan latin & terjemahan.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className={`p-4 sm:p-5 border-t ${darkMode ? 'border-gray-800' : 'border-amber-100'}`}>
+                            <button 
+                                onClick={() => {
+                                    localStorage.setItem('quran_guide_seen', 'true')
+                                    setShowGuide(false)
+                                }} 
+                                className={`w-full py-3 rounded-xl font-serif font-bold text-sm transition-all shadow-md hover:shadow-lg ${darkMode ? 'bg-amber-700 hover:bg-amber-600 text-white' : 'bg-amber-600 hover:bg-amber-700 text-white'}`}
+                            >
+                                Mulai Membaca
                             </button>
                         </div>
                     </div>
