@@ -1,0 +1,9 @@
+@import "tailwindcss";
+
+@theme {
+  --font-amiri: "Amiri Quran", serif;
+  --font-lateef: "Lateef", serif;
+  --font-scheherazade: "Scheherazade New", serif;
+  --font-noto: "Noto Naskh Arabic", serif;
+  --font-harmattan: "Harmattan", serif;
+}
