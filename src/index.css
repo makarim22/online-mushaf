@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Harmattan:wght@400;700&family=Lateef&family=Noto+Naskh+Arabic:wght@400;700&family=Scheherazade+New:wght@400;700&display=swap');
 @import "tailwindcss";
 
 @theme {
@@ -6,4 +7,61 @@
   --font-scheherazade: "Scheherazade New", serif;
   --font-noto: "Noto Naskh Arabic", serif;
   --font-harmattan: "Harmattan", serif;
+  
+  --color-parchment-50: var(--bg-base);
+  --color-parchment-100: var(--bg-surface);
+  --color-parchment-200: var(--border-subtle);
+  
+  --color-emerald-900: #064E3B;
+  --color-emerald-800: #065F46;
+  --color-emerald-700: #047857;
+  --color-amber-900: #78350F;
+  --color-amber-800: #92400E;
 }
+
+:root {
+  --bg-base: #FDFBF7;
+  --bg-surface: #F7F4EF;
+  --bg-card: #FFFFFF;
+  --border-subtle: #EFEBE3;
+  --text-main: #1F2937;
+  --text-sub: #6B7280;
+  --text-heading: #78350F;
+}
+
+.dark {
+  --bg-base: #020617; /* slate-950 */
+  --bg-surface: #0F172A; /* slate-900 */
+  --bg-card: #1E293B; /* slate-800 */
+  --border-subtle: #334155; /* slate-700 */
+  --text-main: #F8FAFC; /* slate-50 */
+  --text-sub: #94A3B8; /* slate-400 */
+  --text-heading: #BAE6FD; /* sky-200 */
+}
+
+body {
+  background-color: var(--bg-base);
+  background-image: radial-gradient(var(--border-subtle) 1px, transparent 1px);
+  background-size: 24px 24px;
+  color: var(--text-main);
+  transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+/* Override utility colors for dark mode */
+.dark .text-gray-900 { color: var(--text-main); }
+.dark .text-gray-800 { color: var(--text-main); }
+.dark .text-gray-700 { color: var(--text-secondary); }
+.dark .text-gray-500 { color: var(--text-sub); }
+.dark .text-gray-400 { color: var(--text-sub); }
+.dark .bg-white { background-color: var(--bg-card); }
+.dark .bg-parchment-50 { background-color: var(--bg-base); }
+.dark .bg-parchment-100 { background-color: var(--bg-surface); }
+.dark .border-parchment-200 { border-color: var(--border-subtle); }
+.dark .border-parchment-100 { border-color: var(--border-subtle); }
+
+/* Hover Overrides for Dark Mode */
+.dark .hover\:bg-parchment-50:hover { background-color: rgba(31, 41, 55, 0.4) !important; }
+.dark .hover\:bg-white:hover { background-color: rgba(31, 41, 55, 0.4) !important; }
+.dark .hover\:bg-parchment-100:hover { background-color: rgba(31, 41, 55, 0.4) !important; }
+.dark .hover\:bg-parchment-200:hover { background-color: rgba(31, 41, 55, 0.4) !important; }
+.dark .hover\:bg-parchment-200\/50:hover { background-color: rgba(31, 41, 55, 0.2) !important; }
