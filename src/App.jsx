@@ -88,6 +88,13 @@ export default function QuranPage() {
             const response = await fetch(`https://equran.id/api/v2/surat/${suratNomor}`)
             const data = await response.json()
             setAyatList(data.data?.ayat || [])
+            
+            // Update selectedSurat with full data (including deskripsi)
+            if (data.data) {
+                const { ayat, ...surahInfo } = data.data
+                setSelectedSurat(prev => ({ ...prev, ...surahInfo }))
+            }
+            
             setCurrentPage(1)
         } catch (error) {
             console.error("Error fetching ayat:", error)
@@ -417,7 +424,7 @@ export default function QuranPage() {
 
     const MushafView = () => (
         <>
-            <div className="px-4 sm:px-8 py-6 sm:py-8 border-b border-parchment-100 dark:border-slate-800/50 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm sticky top-0 z-30">
+            <div className="px-4 sm:px-8 py-6 sm:py-8 border-b border-parchment-100 dark:border-slate-800/50 bg-white dark:bg-slate-950 sticky top-0 z-30 transition-colors duration-500">
                 <div className="max-w-5xl mx-auto flex items-center justify-between gap-4">
                     <button 
                         onClick={() => handleSuratChange(selectedSurat.nomor - 1)}
@@ -449,7 +456,25 @@ export default function QuranPage() {
 
                         <div className="space-y-1">
                             <p className="hidden sm:block text-[10px] uppercase tracking-[0.4em] text-amber-800 dark:text-amber-400 font-bold">Surah {selectedSurat?.nomor}</p>
-                            <h1 className="text-2xl sm:text-4xl font-serif font-bold text-gray-900 dark:text-white">{selectedSurat?.namaLatin}</h1>
+                            <div className="flex items-center justify-center gap-3">
+                                <h1 className="text-2xl sm:text-4xl font-serif font-bold text-gray-900 dark:text-white">{selectedSurat?.namaLatin}</h1>
+                                
+                                {/* Surah Description Tooltip */}
+                                <div className="group relative inline-block align-middle mt-1">
+                                    <Info size={18} className="text-amber-600 dark:text-amber-400 cursor-help opacity-40 hover:opacity-100 transition-opacity" />
+                                    <div className="absolute left-1/2 -translate-x-1/2 top-full mt-4 w-[280px] sm:w-[450px] p-6 bg-white dark:bg-slate-800 rounded-3xl shadow-2xl border border-parchment-100 dark:border-slate-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 text-left scale-95 group-hover:scale-100 origin-top">
+                                        <h4 className="font-serif font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2 border-b border-parchment-100 dark:border-slate-700 pb-2">
+                                            <Sparkles size={16} className="text-amber-600" />
+                                            Tentang Surah
+                                        </h4>
+                                        <div 
+                                            className="text-sm leading-relaxed text-gray-600 dark:text-slate-100 font-serif max-h-80 overflow-y-auto pr-3 custom-scrollbar deskripsi-surah"
+                                            dangerouslySetInnerHTML={{ __html: selectedSurat?.deskripsi }}
+                                        />
+                                        <div className="absolute left-1/2 -translate-x-1/2 bottom-full w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-b-[8px] border-b-white dark:border-b-slate-800"></div>
+                                    </div>
+                                </div>
+                            </div>
                             <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 font-serif italic">{selectedSurat?.arti}</p>
                         </div>
                     </div>
@@ -516,7 +541,7 @@ export default function QuranPage() {
                                 {showTranslation && (
                                     <div className="border-l-2 border-amber-200/30 pl-6">
                                         <p 
-                                            className="font-serif italic text-gray-700 dark:text-gray-300 leading-relaxed"
+                                            className="font-serif italic text-gray-700 dark:text-white leading-relaxed"
                                             style={{ fontSize: `${latinFontSize}px` }}
                                         >
                                             {ayat.teksIndonesia}
@@ -801,7 +826,7 @@ export default function QuranPage() {
             {/* Main Content Area */}
             <div className={`flex-1 flex flex-col overflow-hidden relative transition-all duration-500 ${isSidebarOpen ? 'lg:ml-72' : 'ml-0'}`}>
                 {/* Search Header */}
-                <header className="px-4 sm:px-8 py-4 sm:py-6 border-b border-parchment-100 dark:border-slate-800/50 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm flex items-center justify-between sticky top-0 z-40">
+                <header className="px-4 sm:px-8 py-4 sm:py-6 border-b border-parchment-100 dark:border-slate-800/50 bg-white dark:bg-slate-950 sticky top-0 z-40 transition-colors duration-500 flex items-center justify-between">
                     <div className="flex items-center gap-4 flex-1 max-w-2xl">
                         <button 
                             onClick={() => setIsSidebarOpen(!isSidebarOpen)}

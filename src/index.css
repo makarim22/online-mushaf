@@ -27,6 +27,7 @@
   --text-main: #1F2937;
   --text-sub: #6B7280;
   --text-heading: #78350F;
+  --text-secondary: #374151; /* gray-700 equivalent */
 }
 
 .dark {
@@ -37,6 +38,7 @@
   --text-main: #F8FAFC; /* slate-50 */
   --text-sub: #94A3B8; /* slate-400 */
   --text-heading: #BAE6FD; /* sky-200 */
+  --text-secondary: #FFFFFF; /* White for high contrast */
 }
 
 body {
@@ -65,3 +67,32 @@ body {
 .dark .hover\:bg-parchment-100:hover { background-color: rgba(31, 41, 55, 0.4) !important; }
 .dark .hover\:bg-parchment-200:hover { background-color: rgba(31, 41, 55, 0.4) !important; }
 .dark .hover\:bg-parchment-200\/50:hover { background-color: rgba(31, 41, 55, 0.2) !important; }
+
+.deskripsi-surah p {
+  margin-bottom: 0.75rem;
+}
+.deskripsi-surah i {
+  font-style: italic;
+  opacity: 0.8;
+}
+
+.dark .deskripsi-surah, 
+.dark .deskripsi-surah p, 
+.dark .deskripsi-surah span,
+.dark .deskripsi-surah div {
+  color: #F1F5F9 !important; /* slate-100 */
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #EFEBE3;
+  border-radius: 10px;
+}
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #475569; /* slate-600 */
+}
