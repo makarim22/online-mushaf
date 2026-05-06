@@ -44,7 +44,8 @@ export default function QuranPage() {
     const [tafsirSuratCache, setTafsirSuratCache] = useState({})
     const [repeatCount, setRepeatCount] = useState(1) // 1, 3, 5, Infinity
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-    const [playerPos, setPlayerPos] = useState({ x: window.innerWidth / 2 - 160, y: window.innerHeight - 100 })
+    const [playerPos, setPlayerPos] = useState({ x: 20, y: window.innerHeight - 160 })
+    const [isMushafExpanded, setIsMushafExpanded] = useState(true)
     const [isDragging, setIsDragging] = useState(false)
     const dragOffset = useRef({ x: 0, y: 0 })
 
@@ -415,69 +416,72 @@ export default function QuranPage() {
     )
 
     const MushafView = () => (
-        <div className="flex-1 flex flex-col overflow-hidden animate-in fade-in duration-700">
-            {/* Mushaf Header */}
-            <div className="px-4 sm:px-8 py-8 sm:py-10 text-center relative">
-                <div className="hidden sm:flex absolute left-8 top-1/2 -translate-y-1/2 gap-2">
+        <>
+            <div className="px-4 sm:px-8 py-6 sm:py-8 border-b border-parchment-100 dark:border-slate-800/50 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm sticky top-0 z-30">
+                <div className="max-w-5xl mx-auto flex items-center justify-between gap-4">
                     <button 
                         onClick={() => handleSuratChange(selectedSurat.nomor - 1)}
                         disabled={selectedSurat?.nomor === 1}
-                        className="p-3 rounded-full hover:bg-parchment-100 text-gray-400 hover:text-amber-800 transition-all disabled:opacity-0"
+                        className="hidden sm:flex p-3 rounded-2xl bg-parchment-100 dark:bg-slate-800 text-amber-800 dark:text-amber-200 hover:scale-105 transition-all disabled:opacity-0 shadow-sm"
                     >
                         <ChevronLeft size={24} />
                     </button>
-                </div>
-                <div className="hidden sm:flex absolute right-8 top-1/2 -translate-y-1/2 gap-2">
+
+                    <div className="flex-1 text-center">
+                        {/* Mobile Navigation Row */}
+                        <div className="flex sm:hidden justify-between items-center mb-4">
+                            <button 
+                                onClick={() => handleSuratChange(selectedSurat.nomor - 1)}
+                                disabled={selectedSurat?.nomor === 1}
+                                className="p-2 rounded-xl bg-parchment-100 dark:bg-slate-800 text-amber-800 dark:text-amber-200 disabled:opacity-30"
+                            >
+                                <ChevronLeft size={20} />
+                            </button>
+                            <span className="text-[10px] uppercase tracking-widest text-amber-800 dark:text-amber-400 font-bold">Surah {selectedSurat?.nomor}</span>
+                            <button 
+                                onClick={() => handleSuratChange(selectedSurat.nomor + 1)}
+                                disabled={selectedSurat?.nomor === 114}
+                                className="p-2 rounded-xl bg-parchment-100 dark:bg-slate-800 text-amber-800 dark:text-amber-200 disabled:opacity-30"
+                            >
+                                <ChevronRight size={20} />
+                            </button>
+                        </div>
+
+                        <div className="space-y-1">
+                            <p className="hidden sm:block text-[10px] uppercase tracking-[0.4em] text-amber-800 dark:text-amber-400 font-bold">Surah {selectedSurat?.nomor}</p>
+                            <h1 className="text-2xl sm:text-4xl font-serif font-bold text-gray-900 dark:text-white">{selectedSurat?.namaLatin}</h1>
+                            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 font-serif italic">{selectedSurat?.arti}</p>
+                        </div>
+                    </div>
+
                     <button 
                         onClick={() => handleSuratChange(selectedSurat.nomor + 1)}
                         disabled={selectedSurat?.nomor === 114}
-                        className="p-3 rounded-full hover:bg-parchment-100 text-gray-400 hover:text-amber-800 transition-all disabled:opacity-0"
+                        className="hidden sm:flex p-3 rounded-2xl bg-parchment-100 dark:bg-slate-800 text-amber-800 dark:text-amber-200 hover:scale-105 transition-all disabled:opacity-0 shadow-sm"
                     >
                         <ChevronRight size={24} />
                     </button>
                 </div>
 
-                {/* Mobile Navigation Row */}
-                <div className="flex sm:hidden justify-between items-center mb-6">
-                    <button 
-                        onClick={() => handleSuratChange(selectedSurat.nomor - 1)}
-                        disabled={selectedSurat?.nomor === 1}
-                        className="p-2 rounded-xl bg-parchment-100 text-amber-800 disabled:opacity-30"
-                    >
-                        <ChevronLeft size={20} />
-                    </button>
-                    <span className="text-[10px] uppercase tracking-widest text-amber-800 font-bold">Surah {selectedSurat?.nomor}</span>
-                    <button 
-                        onClick={() => handleSuratChange(selectedSurat.nomor + 1)}
-                        disabled={selectedSurat?.nomor === 114}
-                        className="p-2 rounded-xl bg-parchment-100 text-amber-800 disabled:opacity-30"
-                    >
-                        <ChevronRight size={20} />
-                    </button>
-                </div>
-
-                <p className="hidden sm:block text-[10px] uppercase tracking-[0.4em] text-amber-800 font-bold mb-2">Surah {selectedSurat?.nomor}</p>
-                <h1 className="text-2xl sm:text-3xl font-serif font-bold text-gray-900 dark:text-white mb-2">{selectedSurat?.namaLatin}</h1>
-                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 font-serif italic mb-6">{selectedSurat?.arti}</p>
-                <div className="flex justify-center mb-8">
+                <div className="flex justify-center mt-6">
                     <button 
                         onClick={toggleFullSurahPlayback}
-                        className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-sm transition-all shadow-md ${
+                        className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-xs transition-all shadow-md ${
                             isPlayingFullSurah 
                             ? 'bg-amber-100 text-amber-800 border border-amber-200' 
                             : 'bg-emerald-900 text-white hover:bg-emerald-800'
                         }`}
                     >
-                        {isPlayingFullSurah ? <Pause size={18} fill="currentColor" /> : <Play size={18} fill="currentColor" />}
-                        {isPlayingFullSurah ? 'Playing Surah...' : 'Play Full Surah'}
+                        {isPlayingFullSurah ? <Pause size={14} fill="currentColor" /> : <Play size={14} fill="currentColor" />}
+                        <span>{isPlayingFullSurah ? 'Playing...' : 'Play Surah'}</span>
                     </button>
                 </div>
+
                 {selectedSurat?.nomor !== 9 && (
-                    <div className="font-arabic text-4xl text-gray-800 dark:text-parchment-50 mb-8 select-none">
+                    <div className="font-arabic text-3xl sm:text-4xl text-gray-800 dark:text-parchment-50 mt-8 text-center select-none opacity-80">
                         ﷽
                     </div>
                 )}
-                <div className="h-px w-32 bg-amber-200 mx-auto opacity-50"></div>
             </div>
 
             {/* Ayah List */}
@@ -546,48 +550,51 @@ export default function QuranPage() {
 
             {/* Floating Audio Bar */}
             <div 
-                className="fixed z-[100] w-full max-w-sm px-4 select-none"
-                style={{ 
+                className={`fixed z-[100] w-full sm:max-w-[300px] select-none transition-all duration-300 ${isDragging ? 'transition-none' : ''}`}
+                style={typeof window !== 'undefined' && window.innerWidth >= 640 ? { 
                     left: `${playerPos.x}px`, 
-                    top: `${playerPos.y}px`, 
-                    transition: isDragging ? 'none' : 'all 0.1s ease-out'
+                    top: `${playerPos.y}px`,
+                } : {
+                    bottom: '5rem',
+                    left: '0',
+                    padding: '0 1rem'
                 }}
             >
                 <div className="bg-gray-900/95 text-white rounded-2xl shadow-2xl p-4 flex flex-col border border-white/10 backdrop-blur-xl">
-                    {/* Drag Handle */}
+                    {/* Drag Handle (Desktop only) */}
                     <div 
                         onMouseDown={handleMouseDown}
-                        className="w-full flex justify-center pb-2 cursor-grab active:cursor-grabbing group mb-2"
+                        className="hidden sm:flex w-full justify-center pb-2 cursor-grab active:cursor-grabbing group mb-2"
                     >
                         <div className="w-12 h-1.5 bg-white/10 group-hover:bg-amber-500/50 rounded-full transition-colors" />
                     </div>
                     
-                    <div className="flex items-center justify-between">
-                        <button className="p-2 text-gray-400 hover:text-white transition-colors" onClick={() => handleSuratChange(selectedSurat.nomor - 1)} disabled={selectedSurat.nomor === 1}><ChevronLeft size={20} /></button>
-                        <div className="flex items-center gap-4">
+                    <div className="flex items-center justify-between gap-1">
+                        <button className="p-1 text-gray-400 hover:text-white transition-colors" onClick={() => handleSuratChange(selectedSurat.nomor - 1)} disabled={selectedSurat.nomor === 1}><ChevronLeft size={18} /></button>
+                        <div className="flex items-center gap-2">
                             <button 
                                 onClick={() => setRepeatCount(prev => prev === 1 ? 3 : prev === 3 ? 5 : prev === 5 ? 0 : 1)} 
-                                className={`p-2 transition-colors flex flex-col items-center gap-0.5 ${repeatCount > 1 || repeatCount === 0 ? 'text-amber-500' : 'text-gray-400 hover:text-white'}`}
+                                className={`p-1.5 transition-colors flex flex-col items-center gap-0.5 ${repeatCount > 1 || repeatCount === 0 ? 'text-amber-500' : 'text-gray-400 hover:text-white'}`}
                             >
-                                <RotateCcw size={18} />
-                                <span className="text-[8px] font-bold">{repeatCount === 0 ? 'Loop' : `${repeatCount}x`}</span>
+                                <RotateCcw size={16} />
+                                <span className="text-[7px] font-bold">{repeatCount === 0 ? 'Loop' : `${repeatCount}x`}</span>
                             </button>
                             <button 
                                 onClick={toggleFullSurahPlayback}
-                                className="w-12 h-12 bg-amber-600 rounded-xl flex items-center justify-center hover:bg-amber-500 transition-all shadow-lg active:scale-90"
+                                className="w-9 h-9 bg-amber-600 rounded-xl flex items-center justify-center hover:bg-amber-500 transition-all shadow-lg active:scale-90"
                             >
-                                {isPlayingFullSurah ? <Pause fill="currentColor" /> : <Play fill="currentColor" className="ml-1" />}
+                                {isPlayingFullSurah ? <Pause size={18} fill="currentColor" /> : <Play size={18} fill="currentColor" className="ml-0.5" />}
                             </button>
-                            <button className="p-2 text-gray-400 hover:text-white transition-colors" onClick={() => handleSuratChange(selectedSurat.nomor + 1)} disabled={selectedSurat.nomor === 114}><ChevronRight size={20} /></button>
+                            <button className="p-1 text-gray-400 hover:text-white transition-colors" onClick={() => handleSuratChange(selectedSurat.nomor + 1)} disabled={selectedSurat.nomor === 114}><ChevronRight size={18} /></button>
                         </div>
-                        <div className="flex items-center gap-2 border-l border-white/10 pl-4">
-                            <button onClick={() => setActiveSection('progress')} className="p-2 text-gray-400 hover:text-white transition-colors"><BarChart2 size={18} /></button>
-                            <button onClick={() => setActiveSection('settings')} className="p-2 text-gray-400 hover:text-white transition-colors"><Settings size={18} /></button>
+                        <div className="flex items-center gap-1 border-l border-white/10 pl-2">
+                            {/* <button onClick={() => setActiveSection('progress')} className="p-1.5 text-gray-400 hover:text-white transition-colors"><BarChart2 size={16} /></button> */}
+                            <button onClick={() => setActiveSection('settings')} className="p-1.5 text-gray-400 hover:text-white transition-colors"><Settings size={16} /></button>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </>
     )
 
     const SettingsView = () => (
@@ -766,59 +773,52 @@ export default function QuranPage() {
     }
 
     return (
-        <div className={`flex h-screen overflow-hidden transition-colors duration-500 ${darkMode ? 'dark bg-slate-950 text-slate-100' : 'bg-parchment-50 text-gray-900'}`}>
-            {/* Sidebar Overlay (Mobile) */}
-            {isSidebarOpen && (
-                <div 
-                    className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] lg:hidden animate-in fade-in duration-300"
-                    onClick={() => setIsSidebarOpen(false)}
-                />
-            )}
-
+        <div className={`min-h-screen flex font-sans transition-colors duration-500 ${darkMode ? 'dark bg-slate-900' : 'bg-parchment-50'}`}>
             {/* Sidebar */}
-            <div className={`
-                fixed lg:static inset-y-0 left-0 w-64 bg-parchment-100 dark:bg-slate-900 border-r border-parchment-200 dark:border-slate-800 flex flex-col flex-shrink-0 z-[70] transition-all duration-500 
-                ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-            `}>
-                <div className="p-8">
+            <div className={`fixed inset-y-0 left-0 z-50 w-72 bg-white dark:bg-slate-900 border-r border-parchment-100 dark:border-slate-800 transform transition-transform duration-500 ease-out flex flex-col ${isSidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'}`}>
+                <div className="p-8 relative">
                     <div className="flex items-center gap-3 mb-1">
                         <h1 className="text-3xl font-serif font-bold text-amber-900 dark:text-amber-200 italic">Mushaf Digital</h1>
                     </div>
                     <p className="text-xs uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500 font-bold italic">API by equran.id</p>
+                    
+                    <button 
+                        onClick={() => setIsSidebarOpen(false)}
+                        className="absolute top-8 right-6 p-2 rounded-xl hover:bg-parchment-100 dark:hover:bg-slate-800 text-gray-400 transition-colors"
+                    >
+                        <X size={20} />
+                    </button>
                 </div>
 
-                <nav className="flex-1 px-4 space-y-2">
-                    <SidebarItem id="home" icon={Home} label="Home" />
+                <nav className="flex-1 px-4 space-y-2 overflow-y-auto">
+                    {/* <SidebarItem id="home" icon={Home} label="Home" /> */}
                     <SidebarItem id="mushaf" icon={BookOpen} label="Mushaf" />
-                    <SidebarItem id="progress" icon={BarChart2} label="Hifdz Progress" />
+                    {/* <SidebarItem id="progress" icon={BarChart2} label="Hifdz Progress" /> */}
                     <SidebarItem id="settings" icon={Settings} label="Settings" />
                 </nav>
             </div>
 
             {/* Main Content Area */}
-            <div className="flex-1 flex flex-col overflow-hidden relative">
+            <div className={`flex-1 flex flex-col overflow-hidden relative transition-all duration-500 ${isSidebarOpen ? 'lg:ml-72' : 'ml-0'}`}>
                 {/* Search Header */}
-                <header className={`h-20 border-b flex items-center justify-between px-4 sm:px-8 z-40 transition-colors duration-500 shadow-sm ${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-parchment-200'}`}>
-                    <button 
-                        onClick={() => setIsSidebarOpen(true)}
-                        className="p-2 mr-2 text-gray-400 hover:text-amber-800 dark:hover:text-white lg:hidden transition-colors"
-                    >
-                        <Home size={24} />
-                    </button>
-                    <div className="flex-1 max-w-xl">
-                        <div className="relative group w-full">
-                            <Search className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-amber-800 transition-colors" size={18} />
-                                <input 
-                                    type="text" 
-                                    placeholder="Search..."
-                                    value={searchQuery}
-                                    onChange={e => setSearchQuery(e.target.value)}
-                                    className={`w-full border-none rounded-xl py-2.5 pl-10 sm:pl-12 pr-4 text-sm font-serif outline-none ring-1 transition-all ${
-                                        darkMode 
-                                        ? 'bg-slate-950 text-white ring-slate-800 placeholder:text-slate-500' 
-                                        : 'bg-parchment-100/50 text-gray-900 ring-parchment-200 placeholder:text-gray-400'
-                                    }`}
-                                />
+                <header className="px-4 sm:px-8 py-4 sm:py-6 border-b border-parchment-100 dark:border-slate-800/50 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm flex items-center justify-between sticky top-0 z-40">
+                    <div className="flex items-center gap-4 flex-1 max-w-2xl">
+                        <button 
+                            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                            className="p-2.5 rounded-xl bg-white dark:bg-slate-800 shadow-sm border border-parchment-100 dark:border-slate-700 text-amber-800 dark:text-amber-400"
+                        >
+                            <ChevronRight size={20} className={isSidebarOpen ? 'rotate-180 transition-transform' : 'transition-transform'} />
+                        </button>
+                        
+                        <div className="relative flex-1 group">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-amber-600 transition-colors" size={18} />
+                            <input 
+                                type="text" 
+                                placeholder="Search surahs or jump to ayah (e.g. 2:255)..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="w-full bg-white dark:bg-slate-800 border-2 border-parchment-100 dark:border-slate-700 rounded-2xl py-2.5 pl-12 pr-4 outline-none focus:border-amber-500/50 transition-all text-sm shadow-sm dark:text-white"
+                            />
                             
                             {searchQuery && (
                                 <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-parchment-200 dark:border-slate-800 overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-200">
@@ -888,16 +888,10 @@ export default function QuranPage() {
                             className="p-2.5 text-gray-400 dark:text-white hover:text-amber-800 dark:hover:text-white hover:bg-white dark:hover:bg-slate-800 rounded-xl transition-all" 
                             title="Semantic Search"
                         >
-                            <Sparkles size={20} className="dark:text-white" />
+                            <Sparkles size={20} />
                         </button>
                         <button onClick={() => setActiveSection('settings')} className="hidden sm:block p-2.5 text-gray-400 dark:text-white hover:text-amber-800 dark:hover:text-white hover:bg-white dark:hover:bg-slate-800 rounded-xl transition-all">
                             <Settings size={20} className="dark:text-white" />
-                        </button>
-                        <button 
-                            onClick={() => setActiveSection('settings')}
-                            className="w-8 h-8 rounded-xl bg-emerald-400 flex items-center justify-center text-emerald-900 shadow-sm border border-emerald-500/20 cursor-pointer hover:bg-emerald-300 transition-colors"
-                        >
-                            <User size={16} />
                         </button>
                     </div>
                 </header>
