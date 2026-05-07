@@ -14,6 +14,7 @@ import FloatingPlayer from './components/audio/FloatingPlayer'
 import TafsirModal from './components/ui/TafsirModal'
 import SemanticSearchModal from './components/ui/SemanticSearchModal'
 import SavedVerses from './components/views/SavedVerses'
+import MyProgress from './components/views/MyProgress'
 
 export default function QuranPage() {
     // Navigation State
@@ -35,6 +36,65 @@ export default function QuranPage() {
     const [currentRepeat, setCurrentRepeat] = useState(0)
     const [searchQuery, setSearchQuery] = useState("")
     
+    // User Statistics & Persistence
+    const [userStats, setUserStats] = useState(() => {
+        const saved = localStorage.getItem('hifdzi-user-stats')
+        return saved ? JSON.parse(saved) : {
+            streak: 0,
+            lastActiveDate: null,
+            totalVersesRead: 0,
+            recentlyRead: [], // [{surahNomor, surahName, lastAyah, timestamp}]
+            weeklyProgress: [0, 0, 0, 0, 0, 0, 0], // Pages per day of week
+            memorizedSurahs: [] // List of surah numbers fully memorized
+        }
+    })
+
+    // Persistence Effect
+    useEffect(() => {
+        localStorage.setItem('hifdzi-user-stats', JSON.stringify(userStats))
+    }, [userStats])
+
+    // Streak and Activity Tracking
+    useEffect(() => {
+        const today = new Date().toDateString()
+        if (userStats.lastActiveDate !== today) {
+            setUserStats(prev => {
+                const lastDate = prev.lastActiveDate ? new Date(prev.lastActiveDate) : null
+                const yesterday = new Date()
+                yesterday.setDate(yesterday.getDate() - 1)
+                
+                let newStreak = prev.streak
+                if (!lastDate) {
+                    newStreak = 1
+                } else if (lastDate.toDateString() === yesterday.toDateString()) {
+                    newStreak += 1
+                } else if (lastDate.toDateString() !== today) {
+                    newStreak = 1
+                }
+                
+                return {
+                    ...prev,
+                    streak: newStreak,
+                    lastActiveDate: today
+                }
+            })
+        }
+    }, [])
+
+    const updateReadActivity = (surahNomor, surahName, ayahNomor) => {
+        setUserStats(prev => {
+            const newRecentlyRead = [
+                { surahNomor, surahName, lastAyah: ayahNomor, timestamp: Date.now() },
+                ...prev.recentlyRead.filter(r => r.surahNomor !== surahNomor)
+            ].slice(0, 5) // Keep last 5 unique surahs
+
+            return {
+                ...prev,
+                recentlyRead: newRecentlyRead,
+                totalVersesRead: prev.totalVersesRead + 1
+            }
+        })
+    }
     // UI Settings
     const [fontSize, setFontSize] = useState(28) // Number for slider
     const [latinFontSize, setLatinFontSize] = useState(18)
@@ -163,6 +223,9 @@ export default function QuranPage() {
 
         setPlayingAyat(ayahKey)
         if (fullSurah) setIsPlayingFullSurah(true)
+        
+        // Track Activity
+        updateReadActivity(selectedSurat.nomor, selectedSurat.namaLatin, ayat.nomorAyat)
 
         const audio = new Audio(ayat.audio[selectedReader])
         audioRef.current = audio
@@ -458,7 +521,14 @@ export default function QuranPage() {
                 </header>
 
                 <main className="flex-1 overflow-y-auto">
-                    {activeSection === 'home' && <Dashboard setActiveSection={setActiveSection} handleSuratChange={handleSuratChange} />}
+                    {activeSection === 'home' && (
+                        <Dashboard 
+                            setActiveSection={setActiveSection} 
+                            handleSuratChange={handleSuratChange} 
+                            userStats={userStats}
+                            bookmarks={bookmarks}
+                        />
+                    )}
                     {activeSection === 'mushaf' && (
                         <Mushaf 
                             selectedSurat={selectedSurat}
@@ -492,47 +562,11 @@ export default function QuranPage() {
                         />
                     )}
                     {activeSection === 'progress' && (
-                        <div className="p-8 max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
-                            <h1 className="text-4xl font-serif font-bold text-amber-900 mb-10 italic">Hifdz Progress</h1>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <div className="bg-white p-8 rounded-3xl shadow-sm border border-parchment-200">
-                                    <h3 className="text-xl font-serif font-bold text-gray-900 mb-6">Memorization Summary</h3>
-                                    <div className="space-y-6">
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-gray-500 dark:text-gray-400 font-serif">Total Ayahs Perfected</span>
-                                            <span className="font-bold text-emerald-700 dark:text-emerald-400">1,240 Ayahs</span>
-                                        </div>
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-gray-500 dark:text-gray-400 font-serif">Revision Accuracy</span>
-                                            <span className="font-bold text-amber-600 dark:text-amber-400">94.2%</span>
-                                        </div>
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-gray-500 dark:text-gray-400 font-serif">Active Hifdz Streak</span>
-                                            <span className="font-bold text-gray-900 dark:text-white">12 Days</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="bg-emerald-900 text-white p-8 rounded-3xl shadow-xl">
-                                    <h3 className="text-xl font-serif font-bold mb-6 text-emerald-100">Milestones</h3>
-                                    <div className="space-y-4">
-                                        <div className="flex items-center gap-4 bg-emerald-800/40 p-4 rounded-2xl border border-emerald-700/50">
-                                            <div className="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center text-white"><Sparkles size={20} /></div>
-                                            <div>
-                                                <p className="text-sm font-bold">1/3 of Quran Completed</p>
-                                                <p className="text-[10px] text-emerald-200 uppercase tracking-widest">Achieved 2 weeks ago</p>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center gap-4 opacity-50 p-4 rounded-2xl border border-emerald-700/20">
-                                            <div className="w-10 h-10 rounded-xl bg-gray-600 flex items-center justify-center text-white"><BookOpen size={20} /></div>
-                                            <div>
-                                                <p className="text-sm font-bold">Half of Quran Goal</p>
-                                                <p className="text-[10px] text-emerald-200 uppercase tracking-widest">Est. 3 months remaining</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <MyProgress 
+                            userStats={userStats}
+                            bookmarks={bookmarks}
+                            setActiveSection={setActiveSection}
+                        />
                     )}
                     {activeSection === 'bookmarks' && (
                         <SavedVerses 
