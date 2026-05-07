@@ -40,8 +40,8 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen, activeSection, setActiveSect
                             <BookOpen className="text-parchment-50" size={24} />
                         </div>
                         <div>
-                            <h1 className="text-2xl font-serif font-bold text-amber-900 dark:text-amber-100 italic leading-none">Hifdzi</h1>
-                            <p className="text-[10px] uppercase tracking-[0.3em] text-emerald-800 dark:text-emerald-400 font-bold mt-1">Premium Scholar</p>
+                            <h1 className="text-2xl font-serif font-bold text-amber-900 dark:text-amber-100 italic leading-none">Mushaf Al-Qur'an Online</h1>
+                            <p className="text-[10px]  tracking-[0.3em] text-emerald-800 dark:text-emerald-400 font-bold mt-1">API by equran.id</p>
                         </div>
                     </div>
 
