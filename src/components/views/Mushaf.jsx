@@ -90,7 +90,7 @@ const Mushaf = ({
                         onClick={toggleFullSurahPlayback}
                         className={`flex items-center justify-center gap-3 px-8 py-3.5 rounded-2xl font-bold text-sm transition-all shadow-xl hover:scale-105 active:scale-95 ${
                             isPlayingFullSurah 
-                            ? 'bg-amber-100 text-amber-800 border-2 border-amber-200' 
+                            ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200 border-2 border-amber-200 dark:border-amber-900/50' 
                             : 'bg-emerald-900 text-white hover:bg-emerald-800 border-2 border-emerald-900'
                         }`}
                     >

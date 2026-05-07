@@ -23,8 +23,8 @@ const AyahCard = ({
             id={`ayah-${selectedSurat?.nomor}-${ayat.nomorAyat}`}
             className={`group relative transition-all duration-500 p-8 rounded-3xl ${
                 isPlaying && verseHighlight 
-                ? 'bg-emerald-50/50 dark:bg-emerald-900/20 shadow-sm border border-emerald-100 dark:border-emerald-800/50 ring-1 ring-emerald-50 dark:ring-emerald-900/30' 
-                : 'hover:bg-parchment-50 dark:hover:bg-gray-800/20'
+                ? 'bg-emerald-50/50 dark:bg-emerald-950/40 shadow-sm border border-emerald-100 dark:border-emerald-900/30 ring-1 ring-emerald-50 dark:ring-emerald-950/50' 
+                : 'hover:bg-parchment-50 dark:hover:bg-slate-900/40'
             }`}
         >
             <div className="flex flex-col sm:flex-row justify-between items-start gap-4 sm:gap-8 mb-6 sm:mb-8">
