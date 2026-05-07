@@ -33,8 +33,12 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen, activeSection, setActiveSect
                 />
             )}
 
-            <aside className={`fixed lg:static inset-y-0 left-0 bg-parchment-50 dark:bg-slate-950 border-r border-parchment-100 dark:border-slate-800/50 z-[70] transition-all duration-500 ease-in-out transform ${isSidebarOpen ? 'w-80 translate-x-0 opacity-100' : 'w-0 -translate-x-full lg:translate-x-0 lg:w-0 opacity-0 pointer-events-none border-none'}`}>
-                <div className={`h-full flex flex-col p-8 transition-opacity duration-300 ${isSidebarOpen ? 'opacity-100' : 'opacity-0 whitespace-nowrap overflow-hidden'}`}>
+            <aside className={`fixed lg:static inset-y-0 left-0 bg-parchment-50 dark:bg-slate-950 border-r border-parchment-100 dark:border-slate-800/50 z-[70] transition-all duration-500 ease-in-out transform 
+                ${isSidebarOpen 
+                    ? 'w-80 translate-x-0 opacity-100' 
+                    : 'w-80 lg:w-0 -translate-x-full lg:translate-x-0 opacity-0 pointer-events-none'
+                }`}>
+                <div className={`h-full w-80 flex flex-col p-8 transition-all duration-500 ${isSidebarOpen ? 'opacity-100' : 'opacity-0'}`}>
                     <div className="flex items-center gap-4 mb-12">
                         <div className="w-12 h-12 bg-emerald-900 rounded-2xl flex items-center justify-center shadow-lg transform -rotate-6">
                             <BookOpen className="text-parchment-50" size={24} />
