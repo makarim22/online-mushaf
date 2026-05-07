@@ -14,7 +14,7 @@ const SidebarItem = ({ id, icon: Icon, label, activeSection, setActiveSection, s
         className={`w-full flex items-center gap-4 px-4 py-4 rounded-xl transition-all ${
             activeSection === id 
             ? 'bg-parchment-200 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200 font-bold shadow-sm' 
-            : 'text-gray-500 hover:bg-parchment-200/50 dark:hover:bg-gray-800/50 hover:text-gray-900 dark:hover:text-parchment-50'
+            : 'text-gray-500 dark:text-slate-400 hover:bg-parchment-200/50 dark:hover:bg-gray-800/50 hover:text-gray-900 dark:hover:text-parchment-50'
         }`}
     >
         <Icon size={22} className={activeSection === id ? 'text-amber-800 dark:text-amber-200' : 'text-gray-400'} />

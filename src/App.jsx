@@ -376,17 +376,17 @@ export default function QuranPage() {
                         </button>
                         
                         <div className="relative flex-1 group">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-amber-600 transition-colors" size={18} />
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-slate-300 group-focus-within:text-amber-600 dark:group-focus-within:text-amber-400 transition-colors" size={18} />
                             <input 
                                 type="text" 
-                                placeholder="Search surah"
+                                placeholder="Search surah..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full bg-white dark:bg-slate-800 border-2 border-parchment-100 dark:border-slate-700 rounded-2xl py-2.5 pl-12 pr-4 outline-none focus:border-amber-500/50 transition-all text-sm shadow-sm dark:text-white"
+                                className="w-full bg-white dark:bg-slate-800/80 border-2 border-parchment-100 dark:border-slate-700 rounded-2xl py-2.5 pl-12 pr-4 outline-none focus:border-amber-500/50 dark:focus:border-amber-400/30 focus:bg-white dark:focus:bg-slate-800 transition-all text-sm shadow-sm dark:text-white dark:placeholder-slate-400"
                             />
                             
                             {searchQuery && (
-                                <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-parchment-200 dark:border-slate-800 overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-200">
+                                <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-900/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-parchment-200 dark:border-slate-700 overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-200">
                                     <div className="max-h-96 overflow-y-auto p-2">
                                         {suratList
                                             .filter(s => {
@@ -419,20 +419,24 @@ export default function QuranPage() {
                                                                 }, 800)
                                                             }
                                                         }}
-                                                        className="w-full flex items-center justify-between p-3 rounded-xl hover:bg-parchment-50 dark:hover:bg-gray-800/50 transition-colors text-left group"
+                                                        className="w-full flex items-center justify-between p-4 rounded-xl hover:bg-parchment-50 dark:hover:bg-slate-800/80 transition-all text-left group/item border-b border-transparent last:border-none"
                                                     >
-                                                        <div className="flex items-center gap-3">
-                                                            <span className="w-8 h-8 rounded-lg bg-parchment-100 dark:bg-gray-800 flex items-center justify-center text-xs font-bold text-amber-800 dark:text-amber-200 group-hover:bg-amber-100 dark:group-hover:bg-amber-900/50">{surah.nomor}</span>
+                                                        <div className="flex items-center gap-4">
+                                                            <div className="w-10 h-10 bg-parchment-100 dark:bg-slate-800 rounded-lg flex items-center justify-center text-xs font-bold text-amber-800 dark:text-amber-400 group-hover/item:bg-white dark:group-hover/item:bg-slate-700 transition-colors shadow-sm">
+                                                                {surah.nomor}
+                                                            </div>
                                                             <div>
-                                                                <p className="text-sm font-bold text-gray-900 dark:text-parchment-50">
+                                                                <p className="font-bold text-gray-900 dark:text-white transition-colors">
                                                                     {surah.namaLatin} {targetAyah ? `: ${targetAyah}` : ''}
                                                                 </p>
-                                                                <p className="text-[10px] text-gray-500 dark:text-gray-400 font-serif italic">{surah.arti}</p>
+                                                                <p className="text-[10px] text-gray-500 dark:text-slate-400 font-serif italic tracking-wide">
+                                                                    {surah.arti}
+                                                                </p>
                                                             </div>
                                                         </div>
                                                         <div className="text-right">
-                                                            <span className="font-arabic text-xl text-emerald-900 dark:text-emerald-400 block">{surah.nama}</span>
-                                                            {targetAyah && <span className="text-[9px] text-amber-700 dark:text-amber-50 font-bold uppercase tracking-widest">Jump to Ayah</span>}
+                                                            <span className="font-arabic text-xl text-emerald-900 dark:text-emerald-400 block group-hover/item:scale-105 transition-transform">{surah.nama}</span>
+                                                            {targetAyah && <span className="text-[8px] text-amber-700 dark:text-amber-400 font-bold uppercase tracking-[0.2em]">Jump to Ayah</span>}
                                                         </div>
                                                     </button>
                                                 )

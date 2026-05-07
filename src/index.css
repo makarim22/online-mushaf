@@ -55,11 +55,25 @@ body {
 .dark .text-gray-700 { color: var(--text-secondary); }
 .dark .text-gray-500 { color: var(--text-sub); }
 .dark .text-gray-400 { color: var(--text-sub); }
+.dark .text-emerald-900 { color: var(--text-heading); }
+.dark .text-emerald-800 { color: #34D399; /* emerald-400 */ }
+.dark .text-amber-900 { color: var(--text-heading); }
+.dark .text-amber-800 { color: #FCD34D; /* amber-300 */ }
+.dark .text-amber-700 { color: #FDE047; /* yellow-300 */ }
+
 .dark .bg-white { background-color: var(--bg-card); }
 .dark .bg-parchment-50 { background-color: var(--bg-base); }
 .dark .bg-parchment-100 { background-color: var(--bg-surface); }
+.dark .bg-parchment-200 { background-color: var(--bg-surface); }
 .dark .border-parchment-200 { border-color: var(--border-subtle); }
 .dark .border-parchment-100 { border-color: var(--border-subtle); }
+
+.dark input, .dark textarea { 
+  color: var(--text-main) !important; 
+}
+.dark input::placeholder, .dark textarea::placeholder { 
+  color: var(--text-sub) !important; 
+}
 
 /* Hover Overrides for Dark Mode */
 .dark .hover\:bg-parchment-50:hover { background-color: rgba(31, 41, 55, 0.4) !important; }
