@@ -1,8 +1,8 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { 
     BookOpen, ChevronRight, Bookmark, 
     Volume2, Search, Settings, X, Moon, Sun, 
-    Sparkles, Home, BarChart2, User, Share2, Info, LogOut
+    Sparkles, Home, BarChart2, User, Share2, Info, LogOut, Wifi, WifiOff
 } from 'lucide-react'
 
 const SidebarItem = ({ id, icon: Icon, label, activeSection, setActiveSection, setIsSidebarOpen }) => (
@@ -23,6 +23,21 @@ const SidebarItem = ({ id, icon: Icon, label, activeSection, setActiveSection, s
 )
 
 const Sidebar = ({ isSidebarOpen, setIsSidebarOpen, activeSection, setActiveSection, setShowVectorSearch }) => {
+    const [isOnline, setIsOnline] = useState(navigator.onLine);
+
+    useEffect(() => {
+        const handleOnline = () => setIsOnline(true);
+        const handleOffline = () => setIsOnline(false);
+
+        window.addEventListener('online', handleOnline);
+        window.addEventListener('offline', handleOffline);
+
+        return () => {
+            window.removeEventListener('online', handleOnline);
+            window.removeEventListener('offline', handleOffline);
+        };
+    }, []);
+
     return (
         <>
             {/* Mobile Overlay */}
@@ -39,13 +54,18 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen, activeSection, setActiveSect
                     : 'w-80 lg:w-0 -translate-x-full lg:translate-x-0 opacity-0 pointer-events-none'
                 }`}>
                 <div className={`h-full w-80 flex flex-col p-8 transition-all duration-500 ${isSidebarOpen ? 'opacity-100' : 'opacity-0'}`}>
-                    <div className="flex items-center gap-4 mb-12">
+                    <div className="flex items-center gap-4 mb-8">
                         <div className="w-12 h-12 bg-emerald-900 rounded-2xl flex items-center justify-center shadow-lg transform -rotate-6">
                             <BookOpen className="text-parchment-50" size={24} />
                         </div>
                         <div>
-                            <h1 className="text-2xl font-serif font-bold text-amber-900 dark:text-amber-100 italic leading-none">Mushaf Al-Qur'an Online</h1>
-                            <p className="text-[10px]  tracking-[0.3em] text-emerald-800 dark:text-emerald-400 font-bold mt-1">API by equran.id</p>
+                            <h1 className="text-2xl font-serif font-bold text-amber-900 dark:text-amber-100 italic leading-none">Mushaf Online</h1>
+                            <div className="flex items-center gap-2 mt-2">
+                                <div className={`w-2 h-2 rounded-full ${isOnline ? 'bg-emerald-500' : 'bg-red-500 animate-pulse'}`}></div>
+                                <span className={`text-[10px] font-bold uppercase tracking-widest ${isOnline ? 'text-emerald-700 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                                    {isOnline ? 'Online' : 'Offline Mode'}
+                                </span>
+                            </div>
                         </div>
                     </div>
 
@@ -59,9 +79,22 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen, activeSection, setActiveSect
                     </nav>
 
                     <div className="mt-auto space-y-4">
+                        {!isOnline && (
+                            <div className="bg-amber-100 dark:bg-amber-900/20 p-4 rounded-2xl border border-amber-200 dark:border-amber-800/50 mb-4">
+                                <div className="flex items-center gap-3 text-amber-900 dark:text-amber-200 mb-2">
+                                    <WifiOff size={18} />
+                                    <span className="text-sm font-bold">Offline Access</span>
+                                </div>
+                                <p className="text-[10px] text-amber-800/70 dark:text-amber-200/60 leading-relaxed font-serif">
+                                    You can still access downloaded surahs and your reading history while offline.
+                                </p>
+                            </div>
+                        )}
+                        
                         <button 
                             onClick={() => setShowVectorSearch(true)}
-                            className="w-full bg-emerald-900 text-white p-4 rounded-2xl flex items-center gap-4 hover:bg-emerald-800 transition-all shadow-lg group"
+                            disabled={!isOnline}
+                            className={`w-full bg-emerald-900 text-white p-4 rounded-2xl flex items-center gap-4 hover:bg-emerald-800 transition-all shadow-lg group ${!isOnline ? 'opacity-50 grayscale cursor-not-allowed' : ''}`}
                         >
                             <div className="bg-emerald-800 p-2 rounded-xl group-hover:scale-110 transition-transform">
                                 <Sparkles size={20} className="text-amber-400" />

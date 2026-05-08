@@ -1,6 +1,7 @@
 import React from 'react'
 import { ChevronLeft, ChevronRight, Info, Sparkles, Pause, Play } from 'lucide-react'
 import AyahCard from '../ui/AyahCard'
+import DownloadOfflineButton from '../ui/DownloadOfflineButton'
 
 const Mushaf = ({
     selectedSurat,
@@ -17,11 +18,14 @@ const Mushaf = ({
     handleShowTafsir,
     toggleBookmark,
     bookmarks,
-    handleShare
+    handleShare,
+    selectedReader,
+    fetchError
 }) => {
     return (
         <div className="flex flex-col h-full bg-parchment-50 dark:bg-slate-950 transition-colors duration-500">
             <div className="px-4 sm:px-8 py-6 sm:py-8 border-b border-parchment-100 dark:border-slate-800/50 bg-white dark:bg-slate-950 sticky top-0 z-30 transition-colors duration-500">
+                {/* ... existing header code ... */}
                 <div className="max-w-5xl mx-auto flex items-center justify-between gap-4">
                     <button 
                         onClick={() => handleSuratChange(selectedSurat.nomor - 1)}
@@ -52,7 +56,14 @@ const Mushaf = ({
                         </div>
 
                         <div className="space-y-1">
-                            <p className="hidden sm:block text-[10px] uppercase tracking-[0.4em] text-amber-800 dark:text-amber-400 font-bold">Surah {selectedSurat?.nomor}</p>
+                            <div className="flex items-center justify-center gap-4 mb-1">
+                                <p className="hidden sm:block text-[10px] uppercase tracking-[0.4em] text-amber-800 dark:text-amber-400 font-bold">Surah {selectedSurat?.nomor}</p>
+                                <DownloadOfflineButton 
+                                    selectedSurat={selectedSurat} 
+                                    ayatList={ayatList} 
+                                    selectedReader={selectedReader} 
+                                />
+                            </div>
                             <div className="flex items-center justify-center gap-3">
                                 <h1 className="text-2xl sm:text-4xl font-serif font-bold text-gray-900 dark:text-white">{selectedSurat?.namaLatin}</h1>
                                 
@@ -85,24 +96,26 @@ const Mushaf = ({
                     </button>
                 </div>
 
-                <div className="flex justify-center mt-8">
-                    <button 
-                        onClick={toggleFullSurahPlayback}
-                        className={`flex items-center justify-center gap-3 px-8 py-3.5 rounded-2xl font-bold text-sm transition-all shadow-xl hover:scale-105 active:scale-95 ${
-                            isPlayingFullSurah 
-                            ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200 border-2 border-amber-200 dark:border-amber-900/50' 
-                            : 'bg-emerald-900 text-white hover:bg-emerald-800 border-2 border-emerald-900'
-                        }`}
-                    >
-                        {isPlayingFullSurah 
-                            ? <Pause size={18} fill="currentColor" /> 
-                            : <Play size={18} fill="currentColor" className="ml-1" />
-                        }
-                        <span className="tracking-wide">{isPlayingFullSurah ? 'Playing Surah...' : 'Play Full Surah'}</span>
-                    </button>
-                </div>
+                {!fetchError && (
+                    <div className="flex justify-center mt-8">
+                        <button 
+                            onClick={toggleFullSurahPlayback}
+                            className={`flex items-center justify-center gap-3 px-8 py-3.5 rounded-2xl font-bold text-sm transition-all shadow-xl hover:scale-105 active:scale-95 ${
+                                isPlayingFullSurah 
+                                ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200 border-2 border-amber-200 dark:border-amber-900/50' 
+                                : 'bg-emerald-900 text-white hover:bg-emerald-800 border-2 border-emerald-900'
+                            }`}
+                        >
+                            {isPlayingFullSurah 
+                                ? <Pause size={18} fill="currentColor" /> 
+                                : <Play size={18} fill="currentColor" className="ml-1" />
+                            }
+                            <span className="tracking-wide">{isPlayingFullSurah ? 'Playing Surah...' : 'Play Full Surah'}</span>
+                        </button>
+                    </div>
+                )}
 
-                {selectedSurat?.nomor !== 9 && (
+                {!fetchError && selectedSurat?.nomor !== 9 && (
                     <div className="font-arabic text-3xl sm:text-4xl text-gray-800 dark:text-parchment-50 mt-8 text-center select-none opacity-80">
                         ﷽
                     </div>
@@ -112,24 +125,36 @@ const Mushaf = ({
             {/* Ayah List */}
             <div className="flex-1 overflow-y-auto px-4 sm:px-8 pb-32 pt-12">
                 <div className="max-w-4xl mx-auto space-y-12">
-                    {ayatList.map((ayat, idx) => (
-                        <AyahCard 
-                            key={idx}
-                            ayat={ayat}
-                            idx={idx}
-                            selectedSurat={selectedSurat}
-                            playingAyat={playingAyat}
-                            verseHighlight={verseHighlight}
-                            arabicFont={arabicFont}
-                            fontSize={fontSize}
-                            showTranslation={showTranslation}
-                            latinFontSize={latinFontSize}
-                            handleShowTafsir={handleShowTafsir}
-                            toggleBookmark={toggleBookmark}
-                            bookmarks={bookmarks}
-                            handleShare={handleShare}
-                        />
-                    ))}
+                    {fetchError ? (
+                        <div className="flex flex-col items-center justify-center py-20 text-center">
+                            <div className="w-20 h-20 bg-amber-100 dark:bg-amber-900/20 rounded-full flex items-center justify-center mb-6">
+                                <Info size={40} className="text-amber-700 dark:text-amber-400" />
+                            </div>
+                            <h3 className="text-xl font-serif font-bold text-gray-900 dark:text-white mb-2">Offline Mode</h3>
+                            <p className="text-gray-600 dark:text-slate-400 max-w-md mx-auto leading-relaxed">
+                                {fetchError}
+                            </p>
+                        </div>
+                    ) : (
+                        ayatList.map((ayat, idx) => (
+                            <AyahCard 
+                                key={idx}
+                                ayat={ayat}
+                                idx={idx}
+                                selectedSurat={selectedSurat}
+                                playingAyat={playingAyat}
+                                verseHighlight={verseHighlight}
+                                arabicFont={arabicFont}
+                                fontSize={fontSize}
+                                showTranslation={showTranslation}
+                                latinFontSize={latinFontSize}
+                                handleShowTafsir={handleShowTafsir}
+                                toggleBookmark={toggleBookmark}
+                                bookmarks={bookmarks}
+                                handleShare={handleShare}
+                            />
+                        ))
+                    )}
                 </div>
             </div>
         </div>

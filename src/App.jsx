@@ -162,10 +162,14 @@ export default function QuranPage() {
         fetchSurat()
     }, [])
 
+    const [fetchError, setFetchError] = useState(null)
+
     const fetchAyat = async (suratNomor) => {
         setLoadingAyat(true)
+        setFetchError(null)
         try {
             const response = await fetch(`https://equran.id/api/v2/surat/${suratNomor}`)
+            if (!response.ok) throw new Error("Failed to fetch")
             const data = await response.json()
             setAyatList(data.data?.ayat || [])
             
@@ -179,6 +183,7 @@ export default function QuranPage() {
         } catch (error) {
             console.error("Error fetching ayat:", error)
             setAyatList([])
+            setFetchError("Surah ini tidak tersedia offline. Silakan hubungkan internet atau pilih surah yang sudah di-download.")
         } finally {
             setLoadingAyat(false)
         }
@@ -191,7 +196,13 @@ export default function QuranPage() {
             fetchAyat(surat.nomor)
             setPlayingAyat(null)
             setIsPlayingFullSurah(false)
-            if (audioRef.current) audioRef.current.pause()
+            if (audioRef.current) {
+                audioRef.current.pause()
+                audioRef.current.onended = null
+                audioRef.current.onerror = null
+                audioRef.current.src = "" // Clear the source
+                audioRef.current.load()
+            }
         }
     }
 
@@ -230,7 +241,27 @@ export default function QuranPage() {
         const audio = new Audio(ayat.audio[selectedReader])
         audioRef.current = audio
         audio.muted = isMuted
-        audio.play()
+        
+        audio.onplay = () => {
+            console.log(`[Audio] Playing verse: ${ayahKey}`);
+        }
+
+        audio.onerror = (e) => {
+            console.error(`[Audio] Error playing verse ${ayahKey}:`, e);
+            // If it fails, try to skip to the next verse after a short delay
+            if (fullSurah || isPlayingFullSurahRef.current) {
+                setTimeout(() => {
+                    const currentIndex = ayatList.findIndex(a => a.nomorAyat === ayat.nomorAyat)
+                    if (currentIndex < ayatList.length - 1) {
+                        playAyahAudio(ayatList[currentIndex + 1], true)
+                    }
+                }, 2000);
+            }
+        }
+
+        audio.play().catch(err => {
+            console.error(`[Audio] Playback interrupted or failed:`, err);
+        });
 
         audio.onended = () => {
             // Use refs to get latest state without closure issues
@@ -546,6 +577,8 @@ export default function QuranPage() {
                             toggleBookmark={toggleBookmark}
                             bookmarks={bookmarks}
                             handleShare={handleShare}
+                            selectedReader={selectedReader}
+                            fetchError={fetchError}
                         />
                     )}
                     {activeSection === 'settings' && (
