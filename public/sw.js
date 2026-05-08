@@ -60,14 +60,30 @@ self.addEventListener('fetch', (event) => {
   }
 
   // Handle Audio files
-  if (url.pathname.endsWith('.mp3') || request.destination === 'audio') {
+  if (url.pathname.includes('.mp3') || 
+      url.pathname.includes('/audio/') || 
+      url.pathname.includes('/audio-full/') ||
+      request.destination === 'audio') {
+    
     event.respondWith(
-      caches.match(request, { ignoreSearch: true }).then((cachedResponse) => {
+      caches.match(request.url, { ignoreSearch: true }).then(async (cachedResponse) => {
         if (cachedResponse) {
-          console.log('[SW] Serving audio from cache:', url.pathname);
+          console.log('[SW] Serving audio from cache:', url.href);
+          
+          // Support for Range Requests (Critical for Basic responses)
+          if (request.headers.has('range') && cachedResponse.type !== 'opaque') {
+            try {
+              return await returnRangeResponse(request, cachedResponse);
+            } catch (e) {
+              console.error('[SW] Range response failed, falling back to full response');
+              return cachedResponse;
+            }
+          }
+          
           return cachedResponse;
         }
-        console.log('[SW] Fetching audio from network:', url.pathname);
+        
+        console.log('[SW] Fetching audio from network:', url.href);
         return fetch(request);
       })
     );
@@ -78,7 +94,7 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(request).then((cachedResponse) => {
       const fetchPromise = fetch(request).then((networkResponse) => {
-        if (networkResponse.ok && url.protocol === 'http:' || url.protocol === 'https:') {
+        if (networkResponse.ok && (url.protocol === 'http:' || url.protocol === 'https:')) {
           const cacheCopy = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
             cache.put(request, cacheCopy);
@@ -91,3 +107,26 @@ self.addEventListener('fetch', (event) => {
     })
   );
 });
+
+/**
+ * Helper to handle Range Requests for cached media
+ */
+async function returnRangeResponse(request, response) {
+  const data = await response.arrayBuffer();
+  const range = request.headers.get('range');
+  const parts = range.replace(/bytes=/, "").split("-");
+  const start = parseInt(parts[0], 10);
+  const end = parts[1] ? parseInt(parts[1], 10) : data.byteLength - 1;
+  const chunk = data.slice(start, end + 1);
+
+  return new Response(chunk, {
+    status: 206,
+    statusText: 'Partial Content',
+    headers: new Headers({
+      'Content-Type': response.headers.get('Content-Type') || 'audio/mpeg',
+      'Content-Range': `bytes ${start}-${end}/${data.byteLength}`,
+      'Content-Length': chunk.byteLength,
+      'Accept-Ranges': 'bytes'
+    })
+  });
+}

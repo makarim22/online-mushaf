@@ -24,6 +24,12 @@ export default function QuranPage() {
     const [suratList, setSuratList] = useState([])
     const [selectedSurat, setSelectedSurat] = useState(null)
     const [ayatList, setAyatList] = useState([])
+    const ayatListRef = useRef([])
+    
+    useEffect(() => {
+        ayatListRef.current = ayatList
+    }, [ayatList])
+
     const [loading, setLoading] = useState(true)
     const [loadingAyat, setLoadingAyat] = useState(false)
     const [playingAyat, setPlayingAyat] = useState(null)
@@ -167,23 +173,61 @@ export default function QuranPage() {
     const fetchAyat = async (suratNomor) => {
         setLoadingAyat(true)
         setFetchError(null)
+
+        const apiUrl = `https://equran.id/api/v2/surat/${suratNomor}`
+        
+        // Immediate Cache Check
         try {
-            const response = await fetch(`https://equran.id/api/v2/surat/${suratNomor}`)
+            const cache = await caches.open('hifdzi-v1')
+            const cachedResponse = await cache.match(apiUrl)
+            
+            if (cachedResponse) {
+                const data = await cachedResponse.json()
+                setAyatList(data.data?.ayat || [])
+                if (data.data) {
+                    const { ayat, ...surahInfo } = data.data
+                    setSelectedSurat(prev => ({ ...prev, ...surahInfo }))
+                }
+                setLoadingAyat(false)
+                setCurrentPage(1)
+                
+                // Still try to fetch fresh data in background if online
+                if (navigator.onLine) {
+                    fetch(apiUrl).then(res => res.json()).then(newData => {
+                        if (newData.data) {
+                            setAyatList(newData.data.ayat || [])
+                        }
+                    }).catch(() => {});
+                }
+                return;
+            }
+        } catch (e) {
+            console.warn("Cache check failed:", e)
+        }
+
+        // If not in cache or cache check failed, proceed with network
+        if (!navigator.onLine) {
+            setAyatList([])
+            setFetchError("Surah ini tidak tersedia offline. Silakan hubungkan internet atau pilih surah yang sudah di-download.")
+            setLoadingAyat(false)
+            return
+        }
+
+        try {
+            const response = await fetch(apiUrl)
             if (!response.ok) throw new Error("Failed to fetch")
             const data = await response.json()
             setAyatList(data.data?.ayat || [])
             
-            // Update selectedSurat with full data (including deskripsi)
             if (data.data) {
                 const { ayat, ...surahInfo } = data.data
                 setSelectedSurat(prev => ({ ...prev, ...surahInfo }))
             }
-            
             setCurrentPage(1)
         } catch (error) {
             console.error("Error fetching ayat:", error)
             setAyatList([])
-            setFetchError("Surah ini tidak tersedia offline. Silakan hubungkan internet atau pilih surah yang sudah di-download.")
+            setFetchError("Gagal memuat surah. Periksa koneksi internet Anda.")
         } finally {
             setLoadingAyat(false)
         }
@@ -238,7 +282,9 @@ export default function QuranPage() {
         // Track Activity
         updateReadActivity(selectedSurat.nomor, selectedSurat.namaLatin, ayat.nomorAyat)
 
-        const audio = new Audio(ayat.audio[selectedReader])
+        const audioUrl = ayat.audio[selectedReader]
+        console.log(`[Audio] Attempting to play: ${audioUrl}`);
+        const audio = new Audio(audioUrl)
         audioRef.current = audio
         audio.muted = isMuted
         
@@ -249,11 +295,12 @@ export default function QuranPage() {
         audio.onerror = (e) => {
             console.error(`[Audio] Error playing verse ${ayahKey}:`, e);
             // If it fails, try to skip to the next verse after a short delay
+            const currentAyatList = ayatListRef.current;
             if (fullSurah || isPlayingFullSurahRef.current) {
                 setTimeout(() => {
-                    const currentIndex = ayatList.findIndex(a => a.nomorAyat === ayat.nomorAyat)
-                    if (currentIndex < ayatList.length - 1) {
-                        playAyahAudio(ayatList[currentIndex + 1], true)
+                    const currentIndex = currentAyatList.findIndex(a => a.nomorAyat === ayat.nomorAyat)
+                    if (currentIndex !== -1 && currentIndex < currentAyatList.length - 1) {
+                        playAyahAudio(currentAyatList[currentIndex + 1], true)
                     }
                 }, 2000);
             }
@@ -267,6 +314,7 @@ export default function QuranPage() {
             // Use refs to get latest state without closure issues
             const currentRepeatCount = repeatCountRef.current
             const isFullSurahActive = isPlayingFullSurahRef.current
+            const currentAyatList = ayatListRef.current
 
             // Handle Repeat Logic
             if (currentRepeatCount > 1 && currentRepeat < currentRepeatCount - 1) {
@@ -281,14 +329,18 @@ export default function QuranPage() {
 
             // Handle Full Surah / Next Verse Logic
             if (fullSurah || isFullSurahActive) {
-                const currentIndex = ayatList.findIndex(a => a.nomorAyat === ayat.nomorAyat)
-                if (currentIndex < ayatList.length - 1) {
-                    playAyahAudio(ayatList[currentIndex + 1], true)
+                const currentIndex = currentAyatList.findIndex(a => a.nomorAyat === ayat.nomorAyat)
+                console.log(`[Audio] Current verse index: ${currentIndex}, Total verses: ${currentAyatList.length}`);
+                
+                if (currentIndex !== -1 && currentIndex < currentAyatList.length - 1) {
+                    const nextVerse = currentAyatList[currentIndex + 1];
+                    console.log(`[Audio] Transitioning to next verse: ${nextVerse.nomorAyat}`);
+                    playAyahAudio(nextVerse, true)
                     // Scroll to next ayah
-                    const nextAyah = ayatList[currentIndex + 1]
-                    const element = document.getElementById(`ayah-${selectedSurat.nomor}-${nextAyah.nomorAyat}`)
+                    const element = document.getElementById(`ayah-${selectedSurat.nomor}-${nextVerse.nomorAyat}`)
                     if (element) element.scrollIntoView({ behavior: 'smooth', block: 'center' })
                 } else {
+                    console.log(`[Audio] End of surah reached.`);
                     setPlayingAyat(null)
                     setIsPlayingFullSurah(false)
                 }
