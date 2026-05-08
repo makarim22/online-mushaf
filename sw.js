@@ -61,12 +61,20 @@ self.addEventListener('fetch', (event) => {
 
   // Handle Audio files
   if (url.pathname.includes('.mp3') || 
-      url.pathname.includes('/audio/') || 
-      url.pathname.includes('/audio-full/') ||
+      url.pathname.includes('/audio') || 
       request.destination === 'audio') {
     
     event.respondWith(
-      caches.match(request.url, { ignoreSearch: true }).then(async (cachedResponse) => {
+      (async () => {
+        // Try to match in the specific audio cache first
+        const audioCache = await caches.open('hifdzi-audio-v1');
+        let cachedResponse = await audioCache.match(request.url, { ignoreSearch: true });
+        
+        // Fallback to searching all caches
+        if (!cachedResponse) {
+          cachedResponse = await caches.match(request.url, { ignoreSearch: true });
+        }
+
         if (cachedResponse) {
           console.log('[SW] Serving audio from cache:', url.href);
           
@@ -85,7 +93,7 @@ self.addEventListener('fetch', (event) => {
         
         console.log('[SW] Fetching audio from network:', url.href);
         return fetch(request);
-      })
+      })()
     );
     return;
   }
