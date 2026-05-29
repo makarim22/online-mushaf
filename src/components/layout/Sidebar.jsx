@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { 
     BookOpen, ChevronRight, Bookmark, 
     Volume2, Search, Settings, X, Moon, Sun, 
-    Sparkles, Home, BarChart2, User, Share2, Info, LogOut, Wifi, WifiOff
+    Sparkles, Home, BarChart2, User, Share2, Info, LogOut, Wifi, WifiOff, Feather
 } from 'lucide-react'
 
 const SidebarItem = ({ id, icon: Icon, label, activeSection, setActiveSection, setIsSidebarOpen }) => (
@@ -72,6 +72,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen, activeSection, setActiveSect
                     <nav className="flex-1 space-y-2">
                         <SidebarItem id="home" icon={Home} label="Dashboard" activeSection={activeSection} setActiveSection={setActiveSection} setIsSidebarOpen={setIsSidebarOpen} />
                         <SidebarItem id="mushaf" icon={BookOpen} label="Mushaf Reader" activeSection={activeSection} setActiveSection={setActiveSection} setIsSidebarOpen={setIsSidebarOpen} />
+                        <SidebarItem id="hadith" icon={Feather} label="Hadith & Sunnah" activeSection={activeSection} setActiveSection={setActiveSection} setIsSidebarOpen={setIsSidebarOpen} />
                         <SidebarItem id="progress" icon={BarChart2} label="My Progress" activeSection={activeSection} setActiveSection={setActiveSection} setIsSidebarOpen={setIsSidebarOpen} />
                         <div className="h-px bg-parchment-200 dark:bg-slate-800/50 my-6 mx-4"></div>
                         <SidebarItem id="bookmarks" icon={Bookmark} label="Saved Verses" activeSection={activeSection} setActiveSection={setActiveSection} setIsSidebarOpen={setIsSidebarOpen} />

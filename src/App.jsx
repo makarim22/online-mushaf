@@ -15,6 +15,7 @@ import TafsirModal from './components/ui/TafsirModal'
 import SemanticSearchModal from './components/ui/SemanticSearchModal'
 import SavedVerses from './components/views/SavedVerses'
 import MyProgress from './components/views/MyProgress'
+import HadithSunnah from './components/views/HadithSunnah'
 
 export default function QuranPage() {
     // Navigation State
@@ -660,6 +661,9 @@ export default function QuranPage() {
                             handleSuratChange={handleSuratChange}
                             setActiveSection={setActiveSection}
                         />
+                    )}
+                    {activeSection === 'hadith' && (
+                        <HadithSunnah />
                     )}
                 </main>
 
