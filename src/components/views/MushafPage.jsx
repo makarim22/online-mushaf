@@ -289,6 +289,61 @@ const MushafPage = ({
         }
     }
 
+    // Keyboard Shortcuts
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            // Ignore if typing in an input or textarea
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                return
+            }
+
+            switch(e.code) {
+                case 'Space':
+                    e.preventDefault() // prevent page scroll
+                    togglePlayback()
+                    break
+                case 'ArrowRight':
+                    e.preventDefault()
+                    nextPage()
+                    break
+                case 'ArrowLeft':
+                    e.preventDefault()
+                    prevPage()
+                    break
+                case 'KeyM':
+                    e.preventDefault()
+                    setIsHifzMode(prev => !prev)
+                    break
+                case 'KeyB':
+                    e.preventDefault()
+                    const activeKey = playingVerseKey || selectedVerseKey || uniqueVerseKeys[0]
+                    if (activeKey && toggleBookmark) {
+                        const [sNum, vNum] = activeKey.split(':').map(Number)
+                        const sInfo = suratList.find(s => s.nomor === sNum)
+                        
+                        // Find text for this verse
+                        const verseMeta = verses.find(v => v.verse_key === activeKey)
+                        const textUthmani = verseMeta ? verseMeta.text_uthmani : ""
+                        const transText = verseMeta && verseMeta.translations ? verseMeta.translations[0].text : ""
+
+                        toggleBookmark({
+                            surahNomor: sNum,
+                            surahName: sInfo ? sInfo.namaLatin : `Surah ${sNum}`,
+                            nomorAyat: vNum,
+                            teksArab: textUthmani,
+                            teksIndonesia: transText
+                        })
+                    }
+                    break
+                default:
+                    break
+            }
+        }
+
+        window.addEventListener('keydown', handleKeyDown)
+        return () => window.removeEventListener('keydown', handleKeyDown)
+    }, [isPlaying, playingVerseKey, selectedVerseKey, uniqueVerseKeys, pageNumber, isHifzMode, suratList, verses])
+
     // Auto-scroll when playingVerseKey changes
     useEffect(() => {
         if (playingVerseKey) {
