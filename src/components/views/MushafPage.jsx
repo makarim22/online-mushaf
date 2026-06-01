@@ -242,12 +242,6 @@ const MushafPage = ({
         if (currentIndex !== -1 && currentIndex < currentKeys.length - 1) {
             const nextKey = currentKeys[currentIndex + 1]
             playVerseAudio(nextKey)
-            
-            // Scroll translation card into view
-            const element = document.getElementById(`trans-${nextKey}`)
-            if (element) {
-                element.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
-            }
         } else {
             // End of page reached - auto advance
             if (pageNumber < 604) {
@@ -277,6 +271,24 @@ const MushafPage = ({
             }
         }
     }
+
+    // Auto-scroll when playingVerseKey changes
+    useEffect(() => {
+        if (playingVerseKey) {
+            // Scroll Translation
+            const transEl = document.getElementById(`trans-${playingVerseKey}`)
+            if (transEl) {
+                transEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+            }
+            
+            // Scroll Mushaf Verse Marker
+            const markerEl = document.getElementById(`verse-marker-${playingVerseKey}`)
+            if (markerEl) {
+                // block: 'center' keeps the verse in the middle of the screen
+                markerEl.scrollIntoView({ behavior: 'smooth', block: 'center' })
+            }
+        }
+    }, [playingVerseKey])
 
     // Navigation Handlers
     const prevPage = () => {
@@ -587,6 +599,7 @@ const MushafPage = ({
                                                             {/* Verse End Marker */}
                                                             {verseNum && (
                                                                 <span 
+                                                                    id={`verse-marker-${verseKey}`}
                                                                     onClick={(e) => {
                                                                         e.stopPropagation()
                                                                         if (verseKey) {
