@@ -16,6 +16,7 @@ import SemanticSearchModal from './components/ui/SemanticSearchModal'
 import SavedVerses from './components/views/SavedVerses'
 import MyProgress from './components/views/MyProgress'
 import HadithSunnah from './components/views/HadithSunnah'
+import MushafPage from './components/views/MushafPage'
 
 export default function QuranPage() {
     // Navigation State
@@ -370,22 +371,20 @@ export default function QuranPage() {
     }
 
     const toggleBookmark = (ayat) => {
-        // If ayat is a bookmark object (from SavedVerses), it has 'key' property
-        // If it's a raw ayat object (from AyahCard), we construct the key
-        const key = ayat.key || `${selectedSurat?.nomor}-${ayat.nomorAyat}`
+        // Support explicit surah info for page-by-page reader
+        const sNomor = ayat.surahNomor || selectedSurat?.nomor
+        const sName = ayat.surahName || selectedSurat?.namaLatin
+        const key = ayat.key || `${sNomor}-${ayat.nomorAyat}`
         
         setBookmarks(prev => {
             const exists = prev.find(b => b.key === key)
             if (exists) {
                 return prev.filter(b => b.key !== key)
             } else {
-                // Only allow adding if we have the full context
-                if (ayat.key) return prev // Should not happen
-                
                 const bookmarkData = {
                     key,
-                    surahNomor: selectedSurat.nomor,
-                    surahName: selectedSurat.namaLatin,
+                    surahNomor: sNomor,
+                    surahName: sName,
                     ayatNomor: ayat.nomorAyat,
                     teksArab: ayat.teksArab,
                     teksIndonesia: ayat.teksIndonesia
@@ -454,7 +453,9 @@ export default function QuranPage() {
     }
 
     const handleShare = (ayat) => {
-        const text = `Quran [${selectedSurat.nomor}:${ayat.nomorAyat}] - ${selectedSurat.namaLatin}\n\n${ayat.teksArab}\n\n${ayat.teksIndonesia}\n\nRead more at: ${window.location.href}`
+        const sNomor = ayat.surahNomor || selectedSurat?.nomor
+        const sName = ayat.surahName || selectedSurat?.namaLatin
+        const text = `Quran [${sNomor}:${ayat.nomorAyat}] - ${sName}\n\n${ayat.teksArab}\n\n${ayat.teksIndonesia}\n\nRead more at: ${window.location.href}`
         navigator.clipboard.writeText(text)
         setCopyFeedback("Copied to clipboard!")
         setTimeout(() => setCopyFeedback(null), 2000)
@@ -664,6 +665,18 @@ export default function QuranPage() {
                     )}
                     {activeSection === 'hadith' && (
                         <HadithSunnah />
+                    )}
+                    {activeSection === 'mushafPage' && (
+                        <MushafPage 
+                            selectedReader={selectedReader}
+                            darkMode={darkMode}
+                            arabicFont={arabicFont}
+                            bookmarks={bookmarks}
+                            toggleBookmark={toggleBookmark}
+                            handleShare={handleShare}
+                            suratList={suratList}
+                            fontSize={fontSize}
+                        />
                     )}
                 </main>
 
