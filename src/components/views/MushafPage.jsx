@@ -25,9 +25,12 @@ const MushafPage = ({
     toggleBookmark,
     handleShare,
     suratList,
-    fontSize
+    fontSize,
+    userStats,
+    setUserStats,
+    updateReadActivity
 }) => {
-    const [pageNumber, setPageNumber] = useState(1)
+    const [pageNumber, setPageNumber] = useState(userStats?.lastReadPage || 1)
     const [loading, setLoading] = useState(true)
     const [layoutData, setLayoutData] = useState(null)
     const [verses, setVerses] = useState([])
@@ -132,6 +135,13 @@ const MushafPage = ({
         fetchPageData()
     }, [pageNumber])
 
+    // Track Last Read Page
+    useEffect(() => {
+        if (setUserStats && userStats?.lastReadPage !== pageNumber) {
+            setUserStats(prev => ({ ...prev, lastReadPage: pageNumber }))
+        }
+    }, [pageNumber, setUserStats, userStats?.lastReadPage])
+
     // Cleanup audio on unmount
     useEffect(() => {
         return () => {
@@ -217,6 +227,13 @@ const MushafPage = ({
         setPlayingVerseKey(verseKey)
         const audio = new Audio(audioUrl)
         audioRef.current = audio
+        
+        // Track Activity
+        if (updateReadActivity) {
+            const surahInfo = suratList.find(s => s.nomor === surahNum)
+            const surahName = surahInfo ? surahInfo.namaLatin : `Surah ${surahNum}`
+            updateReadActivity(surahNum, surahName, verseNum)
+        }
 
         audio.play().catch(err => {
             console.error("Playback error:", err)

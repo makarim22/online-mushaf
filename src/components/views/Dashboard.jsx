@@ -1,18 +1,67 @@
 import React from 'react'
 import { RotateCcw, BookOpen, ChevronRight, Sparkles } from 'lucide-react'
 
-const Dashboard = ({ setActiveSection, handleSuratChange, userStats, bookmarks }) => {
+const Dashboard = ({ setActiveSection, handleSuratChange, userStats, setUserStats, bookmarks }) => {
     return (
         <div className="p-8 max-w-7xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
             {/* Top Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-                <div className="bg-white p-6 rounded-3xl shadow-sm border border-parchment-200">
-                    <p className="text-xs uppercase tracking-widest text-gray-400 font-bold mb-2">Current Streak</p>
-                    <h2 className="text-5xl font-serif font-bold text-amber-900">{userStats.streak} {userStats.streak === 1 ? 'Day' : 'Days'}</h2>
-                    <p className="text-emerald-700 text-xs mt-2 flex items-center gap-1 font-medium">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-10">
+                <div className="bg-white p-6 rounded-3xl shadow-sm border border-parchment-200 flex flex-col justify-between">
+                    <div>
+                        <p className="text-xs uppercase tracking-widest text-gray-400 font-bold mb-2">Current Streak</p>
+                        <h2 className="text-5xl font-serif font-bold text-amber-900">{userStats.streak} {userStats.streak === 1 ? 'Day' : 'Days'}</h2>
+                    </div>
+                    <p className="text-emerald-700 text-xs mt-4 flex items-center gap-1 font-medium">
                         <RotateCcw size={12} /> {userStats.streak > 0 ? 'Amazing! Keep it up.' : 'Start your journey today!'}
                     </p>
                 </div>
+                
+                {/* Target Tilawah Card */}
+                <div className="bg-white p-6 rounded-3xl shadow-sm border border-parchment-200 flex justify-between items-center group relative">
+                    <div>
+                        <div className="flex items-center gap-2 mb-2">
+                            <p className="text-xs uppercase tracking-widest text-gray-400 font-bold">Daily Target</p>
+                            <select 
+                                value={userStats.dailyTarget}
+                                onChange={(e) => setUserStats(prev => ({ ...prev, dailyTarget: Number(e.target.value) }))}
+                                className="bg-parchment-50 text-[10px] font-bold px-2 py-0.5 rounded-md outline-none text-amber-800 cursor-pointer hover:bg-parchment-100 transition-colors"
+                            >
+                                <option value={10}>10 Verses</option>
+                                <option value={50}>50 Verses</option>
+                                <option value={100}>100 Verses</option>
+                                <option value={200}>200 Verses</option>
+                                <option value={500}>500 Verses</option>
+                            </select>
+                        </div>
+                        <h2 className="text-4xl font-serif font-bold text-gray-900">
+                            {userStats.versesReadToday} <span className="text-lg text-gray-400 font-normal">/ {userStats.dailyTarget}</span>
+                        </h2>
+                        <p className="text-gray-500 text-xs mt-2 font-medium">
+                            {userStats.versesReadToday >= userStats.dailyTarget 
+                                ? <span className="text-emerald-600 font-bold">✨ Target Achieved!</span> 
+                                : 'Verses read today'}
+                        </p>
+                    </div>
+                    <div className="relative w-20 h-20 flex-shrink-0">
+                        <svg className="w-full h-full transform -rotate-90">
+                            <circle cx="40" cy="40" r="35" stroke="currentColor" strokeWidth="8" fill="transparent" className="text-parchment-100 dark:text-slate-800" />
+                            <circle 
+                                cx="40" cy="40" r="35" 
+                                stroke="currentColor" 
+                                strokeWidth="8" 
+                                fill="transparent" 
+                                strokeDasharray={220} 
+                                strokeDashoffset={220 * (1 - Math.min(userStats.versesReadToday / userStats.dailyTarget, 1))} 
+                                strokeLinecap="round"
+                                className={userStats.versesReadToday >= userStats.dailyTarget ? 'text-amber-500' : 'text-emerald-600'} 
+                            />
+                        </svg>
+                        <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-gray-900 dark:text-white">
+                            {Math.round(Math.min((userStats.versesReadToday / userStats.dailyTarget) * 100, 100))}%
+                        </span>
+                    </div>
+                </div>
+
                 <div className="bg-white p-6 rounded-3xl shadow-sm border border-parchment-200 flex justify-between items-center">
                     <div>
                         <p className="text-xs uppercase tracking-widest text-gray-400 font-bold mb-2">Saved Verses</p>

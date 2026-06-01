@@ -36,7 +36,15 @@ export default function QuranPage() {
     const [loadingAyat, setLoadingAyat] = useState(false)
     const [playingAyat, setPlayingAyat] = useState(null)
     const [selectedReader, setSelectedReader] = useState("01")
-    const [bookmarks, setBookmarks] = useState([])
+    const [bookmarks, setBookmarks] = useState(() => {
+        const saved = localStorage.getItem('hifdzi-bookmarks')
+        return saved ? JSON.parse(saved) : []
+    })
+    
+    useEffect(() => {
+        localStorage.setItem('hifdzi-bookmarks', JSON.stringify(bookmarks))
+    }, [bookmarks])
+    
     const [copyFeedback, setCopyFeedback] = useState(null)
     const [currentPage, setCurrentPage] = useState(1)
     const [isPlayingFullSurah, setIsPlayingFullSurah] = useState(false)
@@ -47,13 +55,25 @@ export default function QuranPage() {
     // User Statistics & Persistence
     const [userStats, setUserStats] = useState(() => {
         const saved = localStorage.getItem('hifdzi-user-stats')
-        return saved ? JSON.parse(saved) : {
+        if (saved) {
+            const parsed = JSON.parse(saved)
+            return {
+                ...parsed,
+                lastReadPage: parsed.lastReadPage || 1,
+                dailyTarget: parsed.dailyTarget || 50,
+                versesReadToday: parsed.versesReadToday || 0
+            }
+        }
+        return {
             streak: 0,
             lastActiveDate: null,
             totalVersesRead: 0,
             recentlyRead: [], // [{surahNomor, surahName, lastAyah, timestamp}]
             weeklyProgress: [0, 0, 0, 0, 0, 0, 0], // Pages per day of week
-            memorizedSurahs: [] // List of surah numbers fully memorized
+            memorizedSurahs: [], // List of surah numbers fully memorized
+            lastReadPage: 1,
+            dailyTarget: 50,
+            versesReadToday: 0
         }
     })
 
@@ -83,7 +103,8 @@ export default function QuranPage() {
                 return {
                     ...prev,
                     streak: newStreak,
-                    lastActiveDate: today
+                    lastActiveDate: today,
+                    versesReadToday: 0
                 }
             })
         }
@@ -99,7 +120,8 @@ export default function QuranPage() {
             return {
                 ...prev,
                 recentlyRead: newRecentlyRead,
-                totalVersesRead: prev.totalVersesRead + 1
+                totalVersesRead: prev.totalVersesRead + 1,
+                versesReadToday: (prev.versesReadToday || 0) + 1
             }
         })
     }
@@ -611,6 +633,7 @@ export default function QuranPage() {
                             setActiveSection={setActiveSection} 
                             handleSuratChange={handleSuratChange} 
                             userStats={userStats}
+                            setUserStats={setUserStats}
                             bookmarks={bookmarks}
                         />
                     )}
@@ -676,6 +699,9 @@ export default function QuranPage() {
                             handleShare={handleShare}
                             suratList={suratList}
                             fontSize={fontSize}
+                            userStats={userStats}
+                            setUserStats={setUserStats}
+                            updateReadActivity={updateReadActivity}
                         />
                     )}
                 </main>
