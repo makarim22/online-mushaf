@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { ChevronLeft, ChevronRight, Play, Pause, Bookmark, Share2, Eye, EyeOff, Loader2, BookOpen, Volume2 } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Play, Pause, Bookmark, Share2, Eye, EyeOff, Loader2, BookOpen, Volume2, Brain } from 'lucide-react'
 
 // Static mapping of Juz starting page numbers (Madani Mushaf standard)
 const JUZ_START_PAGES = [
@@ -33,6 +33,7 @@ const MushafPage = ({
     const [verses, setVerses] = useState([])
     const [chapters, setChapters] = useState([])
     const [showTranslation, setShowTranslation] = useState(true)
+    const [isHifzMode, setIsHifzMode] = useState(false)
     
     // Playback States
     const [isPlaying, setIsPlaying] = useState(false)
@@ -444,6 +445,18 @@ const MushafPage = ({
                         >
                             {showTranslation ? <EyeOff size={18} /> : <Eye size={18} />}
                         </button>
+                        
+                        <button 
+                            onClick={() => setIsHifzMode(!isHifzMode)}
+                            className={`p-2.5 rounded-xl border transition-all shadow-sm cursor-pointer ${
+                                isHifzMode 
+                                ? 'bg-amber-100 dark:bg-amber-950/40 border-amber-300 dark:border-amber-800 text-amber-800 dark:text-amber-400' 
+                                : 'border-parchment-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-600 dark:text-slate-300 hover:text-amber-800 dark:hover:text-amber-400'
+                            }`}
+                            title={isHifzMode ? "Matikan Mode Hafalan" : "Aktifkan Mode Hafalan"}
+                        >
+                            <Brain size={18} />
+                        </button>
                     </div>
                 </div>
             </div>
@@ -541,11 +554,15 @@ const MushafPage = ({
                                                                     playWordAudio(wordKey)
                                                                     if (verseKey) setSelectedVerseKey(verseKey)
                                                                 }}
-                                                                className={`${arabicFont} text-gray-800 dark:text-parchment-50 cursor-pointer transition-all duration-200 hover:text-amber-600 dark:hover:text-amber-400 p-0.5 px-[0.1cqw] rounded-[0.5cqw] ${
+                                                                className={`${arabicFont} text-gray-800 dark:text-parchment-50 cursor-pointer transition-all duration-300 hover:text-amber-600 dark:hover:text-amber-400 p-0.5 px-[0.1cqw] rounded-[0.5cqw] ${
                                                                     isWordPlaying 
                                                                     ? 'text-emerald-700 dark:text-emerald-400 scale-105 font-bold shadow-sm' 
                                                                     : isVerseHighlighted 
                                                                     ? 'bg-amber-100/60 dark:bg-amber-950/40 text-amber-900 dark:text-amber-100 font-medium' 
+                                                                    : ''
+                                                                } ${
+                                                                    isHifzMode && !isWordPlaying
+                                                                    ? 'blur-[6px] opacity-50 hover:blur-none hover:opacity-100'
                                                                     : ''
                                                                 }`}
                                                                 style={{ fontSize: `calc(3.4cqw * ${fontSize / 28})` }}
